@@ -1,0 +1,64 @@
+---
+- name: Incluir variables específicas del sistema operativo
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Comprobar si el archivo de configuración de GitLab ya existe
+  stat: path=/etc/gitlab/gitlab.rb
+  register: gitlab_config_file
+
+- name: Comprobar si GitLab ya está instalado
+  stat: path=/usr/bin/gitlab-ctl
+  register: gitlab_file
+
+- name: Instalar dependencias de GitLab
+  package: name={{ item }} state=installed
+  with_items:
+    - openssh-server
+    - postfix
+    - curl
+    - openssl
+
+- name: Descargar el script de instalación del repositorio de GitLab
+  get_url:
+    url: "{{ gitlab_repository_installation_script_url }}"
+    dest: /tmp/gitlab_install_repository.sh
+    validate_certs: "{{ gitlab_download_validate_certs }}"
+  when: (gitlab_file.stat.exists == false)
+
+- name: Instalar el repositorio de GitLab
+  command: bash /tmp/gitlab_install_repository.sh
+  when: (gitlab_file.stat.exists == false)
+
+- name: Instalar GitLab
+  package: name={{ gitlab_edition }} state=installed
+  when: (gitlab_file.stat.exists == false)
+
+- name: Reconfigurar GitLab (primera ejecución)
+  command: >
+    gitlab-ctl reconfigure
+    creates=/var/opt/gitlab/bootstrapped
+  failed_when: false
+
+- name: Crear la carpeta de configuración de GitLab SSL
+  file:
+    path: /etc/gitlab/ssl
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+  when: gitlab_create_self_signed_cert
+
+- name: Crear certificado autofirmado
+  command: >
+    openssl req -new -nodes -x509 -subj "{{ gitlab_self_signed_cert_subj }}" -days 3650 -keyout {{ gitlab_ssl_certificate_key }} -out {{ gitlab_ssl_certificate }} -extensions v3_ca
+    creates={{ gitlab_ssl_certificate }}
+  when: gitlab_create_self_signed_cert
+
+- name: Copiar el archivo de configuración de GitLab
+  template:
+    src: gitlab.rb.j2
+    dest: /etc/gitlab/gitlab.rb
+    owner: root
+    group: root
+    mode: 0600
+  notify: Reiniciar GitLab

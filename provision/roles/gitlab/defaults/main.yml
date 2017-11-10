@@ -1,0 +1,54 @@
+---
+# Configuración general
+gitlab_external_url: "http://localhost/"
+gitlab_git_data_dir: "/var/opt/gitlab/git-data"
+gitlab_edition: "gitlab-ce"
+gitlab_backup_path: "/var/opt/gitlab/backups"
+
+# Configuración SSL
+gitlab_redirect_http_to_https: "false"
+gitlab_ssl_certificate: "/etc/gitlab/ssl/gitlab.crt"
+gitlab_ssl_certificate_key: "/etc/gitlab/ssl/gitlab.key"
+
+# Configuración de certificados SSL autofirmados
+gitlab_create_self_signed_cert: "false"
+gitlab_self_signed_cert_subj: "/C=ES/ST=Madrid/L=Madrid/O=IT/CN=gitlab"
+
+# Configuración LDAP
+gitlab_ldap_enabled: "false"
+gitlab_ldap_host: "example.com"
+gitlab_ldap_port: "389"
+gitlab_ldap_uid: "sAMAccountName"
+gitlab_ldap_method: "plain"
+gitlab_ldap_bind_dn: "CN=Username,CN=Users,DC=example,DC=com"
+gitlab_ldap_password: "password"
+gitlab_ldap_base: "DC=example,DC=com"
+
+# Configuración SMTP
+gitlab_smtp_enable: "false"
+gitlab_smtp_address: "smtp.server"
+gitlab_smtp_port: "465"
+gitlab_smtp_user_name: "smtp user"
+gitlab_smtp_password: "smtp password"
+gitlab_smtp_domain: "example.com"
+gitlab_smtp_authentication: "login"
+gitlab_smtp_enable_starttls_auto: "true"
+gitlab_smtp_tls: "false"
+gitlab_smtp_openssl_verify_mode: "none"
+gitlab_smtp_ca_path: "/etc/ssl/certs"
+gitlab_smtp_ca_file: "/etc/ssl/certs/ca-certificates.crt"
+
+# Autenticación de cliente 2-way SSL
+gitlab_nginx_ssl_verify_client: ""
+gitlab_nginx_ssl_client_certificate: ""
+
+# Configuraciones opcionales
+gitlab_time_zone: "UTC"
+gitlab_backup_keep_time: "604800"
+gitlab_download_validate_certs: "false"
+
+# Configuración de email
+gitlab_email_enabled: "false"
+gitlab_email_from: "gitlab@example.com"
+gitlab_email_display_name: "Gitlab"
+gitlab_email_reply_to: "gitlab@example.com"
